@@ -1,0 +1,415 @@
+Preprocessing directives:
+
+preprocessing_file
+    :    group?
+    ;
+
+group
+    :    group_part+
+    ;
+
+group_part
+    :    control_line
+    ;
+
+control_line
+    :    # INCLUDE pp_tokens new_line
+    |    # DEFINE IDENTIFIER replacement_list new_line
+    |    # DEFINE IDENTIFIER ( identifier_list? ) replacement_list new_line
+    |    # UNDEF IDENTIFIER new_line
+    |    # new_line
+    ;
+
+replacement_list
+    :    pp_tokens?
+    ;
+
+pp_tokens
+    :    preprocessing_token+
+    ;
+
+preprocessing-token
+    :    IDENTIFIER
+    |    INT
+    |    FLOAT
+    |    STRING
+    |    PUNCTUATOR
+    ;
+
+PUNCTUATOR
+    :    '[' | ']' | '(' |')' | '{' | '}' | '.' | '->'
+    | '++' | '--' | '&' | '*' | '+' | '-' | '~' | '!'
+    | '/' | '%' | '<<' | '>>' | '<' | '>' | '<=' | '>='
+    | '==' | '!=' | '^' | '|' | '&&' | '||'
+    | '?' | ':' | ';' | '...'
+    | '=' | '*=' | '/=' | '%=' | '+=' | '-=' | '<<=' | '>>='
+    | '&=' | '^=' | '|=' | ',' | '#' | '##' | '<:' | ':>'
+    | '<%' | '%>' | '%:' | '%:%:'
+    ;
+
+New_line:    ( '\r' | '\n' | '\r\n' );
+
+External definitions:
+
+translation_unit
+    :    external_declaration+
+    ;
+
+external_declaration
+    :    functionn_definition
+    |    declaration
+    ;
+
+function_definition
+    :    declaration_specifier declarator declaration_list? compound_statement
+    ;
+
+declaration_list
+    :    declaration+
+    ;
+
+Statements:
+
+statement
+    :    labeled_statement
+    |    compound_statement
+    |    expression_statement
+    |    selection_statement
+    |    iteration_statement
+    |    jump_statement
+    ;
+
+labeled_statement
+    :    IDENTIFIER ':' statement
+    |    CASE constant_expression ':' statement
+    |    DEFAULT ':' statement
+    ;
+
+compound_statement
+    :    '{' block_item_list? '}'
+    ;
+
+block_item_list
+    :    block_item+
+    ;
+
+block_item
+    :    declaration
+    |    statement
+    ;
+
+expression_statement
+    :    expression? ';'
+    ;
+
+selection_statement
+    :    IF '(' expression ')' statement
+    |    IF '(' expression ')' statement ELSE statement
+    |    SWITCH '(' expression ')' statement
+    ;
+
+iteration_statement
+    :    WHILE '(' expression ')' statement
+    |    DO statement WHILE '(' expression ')' ';'
+    |    FOR '(' expression? ';' expression? ';' expression? ')' statement
+    |    FOR '(' declaration expression? ';' expression? ')' statement
+    ;
+
+jump_statement
+    :    GOTO IDENTIFIER ';'
+    |    CONTINUE ';'
+    |    BREAK ';'
+    |    RETURN expression? ';'
+    ;
+
+Declarations:
+
+declaration
+    :    declaration_specifiers init_declaratior_list? ';'
+    ;
+
+declaration_specifiers
+    :    declaration_specifier+
+    ;
+
+declaration_specifier
+    :    storage_class_specifier
+    |    type_specifer
+    |    type_qualifier
+    ;
+
+init_declaratior_list
+    :    init_declarator (',' init_declarator)*
+    ;
+
+init_declarator
+    :    declarator ('=' initializer)?
+    ;
+
+storage_class_specifier
+    :    TYPEDEF
+    |    EXTERN
+    |    STATIC
+    |    AUTO
+    |    REGISTER
+    ;
+
+type_specifer
+    :    VOID
+    |    CHAR
+    |    SHORT
+    |    INT
+    |    LONG
+    |    FLOAT
+    |    DOUBLE
+    |    SIGNED
+    |    UNSIGNED
+    |    typedef_name
+    ;
+
+type_qualifier
+    :    CONST
+    |    VOLATILE
+    ;
+
+declarator
+    :    pointer? direct_declarator
+    ;
+
+direct_declarator
+    :    ( IDENTIFIER | '(' declarator ')' ) ( '[' constant_expression? ']' | '(' identifier_list? ')' )*
+    ;
+
+pointer
+    :    ('*' type_qualifier_list?)+
+    ;
+
+type_qualifier_list
+    :    type_qualifier+
+    ;
+
+identifier_list
+    :    IDENTIFIER (',' IDENTIFIER )*
+    ;
+
+type_name
+    :    specifier_qualifier_list
+    ;
+
+specifier_qualifier_list
+    :    (type_specifer | type_qualifier)+
+    ;
+
+typedef_name
+    :    IDENTIFIER 
+    ;
+
+initializer
+    :    assignment_expression
+    |    '{' initializer_list '}'
+    |    '{' initializer_list ',' '}'
+    ;
+
+initializer_list
+    :    initializer ( ',' initializer )*
+    ;
+
+Expressions:
+
+expression
+    :    assignment_expression ( ',' assignment_expression )*
+    ;
+
+constant_expression
+    :    conditional_expression
+    ;
+
+conditional_expression
+    :    logical_or_expression 
+    |    logical_or_expression '?' expression ':' conditional_expression
+    ;
+
+assignment_expression
+    :    ( unary_expression assignment_operator )* conditional_expression
+    ;
+
+assignment_operator
+    :    '='
+    |    '*='
+    |    '/='
+    |    '%='
+    |    '+='
+    |    '-='
+    |    '<<='
+    |    '>>='
+    |    '&='
+    |    '^='
+    |    '|='
+    ;
+
+primary_expression
+    :    IDENTIFIER 
+    |    constant
+    |    string_literal
+    |    '(' expression ')'
+    ;
+
+postfix_expression
+    :    primary_expression ( '[' expression ']' | '(' argument_expression_list? ')' | '.' IDENTIFIER | '->' IDENTIFIER | '++' | '--' )*
+    ;
+
+argument_expression_list
+    :    assignment_expression (',' assignment_expression)*
+    ;
+
+unary_expression
+    :    ( '++' | '--' | SIZEOF )* ( postfix_expression | unary_operator cast_expression | SIZEOF '(' type_name ')'  )
+    ;
+
+unary_operator
+    :    '&'
+    |    '*'
+    |    '+'
+    |    '-'
+    |    '~'
+    |    '!'
+    ;
+
+cast_expression
+    :    ( '(' type_name ')' )* unary_expression
+    ;
+
+multiplicative_expression
+    :    cast_expression ( ( '*' | '/' | '%' ) cast_expression )*
+    ;
+
+addtive_expression
+    :    multiplicative_expression ( ( '+' | '-' ) multiplicative_expression )*
+    ;
+
+shift_expression
+    :    addtive_expression ( ( '<<' | '>>' ) addtive_expression )*
+    ;
+
+relational_expression
+    :    shift_expression ( ( '<' | '<=' | '>' | '>=' ) shift_expression )*
+    ;
+
+equality_expression
+    :    relational_expression ( ( '==' | '!=' ) relational_expression )*
+    ;
+
+and_expression
+    :    equality_expression ( '&' equality_expression )*
+    ;
+
+exclusive_or_expression
+    :    and_expression ( '^' and_expression )*
+    ;
+
+inclusive_or_expression
+    :    exclusive_or_expression ( '|' exclusive_or_expression )*
+    ;
+
+logical_and_expression
+    :    inclusive_or_expression ( '&&' inclusive_or_expression )*
+    ;
+
+logical_or_expression
+    :    logical_and_expression ( '||' logical_and_expression )*
+    ;
+
+INCLUDE:    'include' ;
+DEFINE:    'define' ;
+UNDEF:    'undef' ;
+CASE:    'case' ;
+DEFAULT:    'default' ;
+IF:    'if' ;
+SWITCH:    'switch' ;
+DO:    'do' ;
+WHILE:    'while' ;
+FOR:    'for' ;
+GOTO:    'goto' ;
+CONTINUE:    'continue' ;
+BREAK:    'break' ;
+RETURN:    'return' ;
+TYPEDEF:    'typedef' ;
+EXTERN:    'extern' ;
+STATIC:    'static' ;
+AUTO:    'auto' ;
+REGISTER:    'register' ;
+VOID:    'void' ;
+CHAR:    'char' ;
+SHORT:    'short' ;
+INT:    'int' ;
+LONG:    'long' ;
+FLOAT:    'float' ;
+DOUBLE:    'double' ;
+SIGNED:    'signed' ;
+UNSIGNED:    'unsigned' ;
+CONST:    'const' ;
+VOLATILE:    'volatile' ;
+SIZEOF:    'sizeof' ;
+
+constant
+    :    integer_constant
+    |    floating_constant
+    |    enumeration_constant
+    |    character_constant
+    ;
+
+integer_constant
+    :    ( '+' | '-' )? (  Digit* | '0'Octal_digit* | ('0x' | '0X') Hexadecimal_digit+ ) integer_suffix?
+    ;
+
+integer_suffix
+    :    ( 'u' | 'U' ) ( ( 'l' | 'L' ) | ( 'll' | 'LL' ) )?
+    |    ( ( 'l' | 'L' ) | ( 'll' | 'LL' ) ) ( 'u' | 'U' )?
+    ;
+
+floating_constant
+    :    ( '+' | '-' )? ( decimal_float | hexadecimal_float )
+    ;
+
+decimal_float
+    :    ( Digit+ ('.' Digit*)? ) ( ('e' | 'E') ( '+' | '-' )? Digit+ )? ('f' | 'l' | 'F' | 'L')?
+    ;
+
+hexadecimal_float
+    :    ('0x' | '0X') ( Hexadecimal_digit+ ('.'Hexadecimal_digit*)? ) ( ('p' | 'P') ( '+' | '-' )? Digit+ )? ('f' | 'l' | 'F' | 'L')?
+    ;
+
+Digit
+    :    ('0'..'9')
+    ;
+
+Nonzero_digit
+    :    ('1'..'9')
+    ;
+
+Octal_digit
+    :    ('0'..'7')
+    ;
+
+Hexadecimal_digit
+    :    ('0'..'9' | 'a'..'f' | 'A'..'F')
+    ;
+
+character_constant
+    :    ( 'L' | 'u' | 'U' )? '\'' (~[ \'\\\r\n] | \\. )* '\''
+    ;
+
+enumeration_constant
+    :    identifier
+    ;
+
+string_literal
+    :    ( 'u8' | 'u' | 'U' | 'L' )? '"' (~( ''' | '\' | '\r' | '\n' )| '\'. )* '"'
+    ;
+
+#include<stdio.h>
+int main ( ) {
+ int a ;
+ int b = a ;
+ return ;
+}
